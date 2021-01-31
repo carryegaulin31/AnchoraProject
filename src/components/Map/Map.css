@@ -1,0 +1,98 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@300&display=swap');
+
+
+
+#map {
+    width: 600px;
+    height: 500px;
+    margin: 2em auto;
+  }
+  
+  #pic {
+    width: 400px;
+    height: 190px;
+    padding: 5px;
+  }
+  
+  #pic p {
+    margin: 0;
+    text-align: center;
+    font: italic small Arial, sans-serif;
+    float: left;
+  }
+  
+  #pic img {
+    display: block;
+    width: 268px;
+    height: 188px;
+    float: left;
+    padding-right: 5px;
+  }
+
+  
+    /*remove blue box*/
+    textarea:focus, input:focus{
+      outline: none;
+  }
+   
+    .search input {
+      padding: 0.5rem;
+      font-size: 1.5rem;
+      width: 100%;
+    
+    } */
+    .search {
+      background-color: transparent;
+      color: #eeeeee;
+      outline: none;
+      outline-style: none;
+      outline-offset: 0;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+      border-bottom: solid #eeeeee 1px;
+      padding: 3px 10px;
+      outline: none;
+      font-size: xx-large
+      
+  }
+    .locate {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: none;
+      border: none;
+      z-index: 10;
+    }
+    
+    .locate img {
+      width: 30px;
+      cursor: pointer;
+    }
+  .infoBox{
+    /* border-top: 20px solid teal; */
+    /* border-bottom: 5px solid teal; */
+    width: 200px;
+    height:200px;
+    /* background-color: teal; */
+    /* background-image: url("compass.png"); */
+     font-family: 'Lato', sans-serif;
+ 
+  }
+  .imageHolder{
+    height:75%;
+    width: 75%;
+    /* background-image: url("compass.png"); */
+    background-repeat: no-repeat;
+  
+    /* background-position: right; */
+  }
+  .topBanner{
+    height: 20px;
+    border-radius: 25px;
+    background-color: teal;
+    color: white;
+  }
+ 
+      
