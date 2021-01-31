@@ -1,208 +1,169 @@
-import React from "react";
-import { Map, Marker, GoogleApiWrapper } from "google-maps-react";
+import "./Map.css";
+import React, { useState } from "react";
+import  {Link}  from "react-router-dom";
+import {
+    GoogleMap,
+    useLoadScript,
+    Marker,
+    InfoWindow,
+} from "@react-google-maps/api";
+import "@reach/combobox/styles.css";
+import mapStyles from "../../mapStyles";
+import Data from "../../containers/MapContainer/trials.json";
+import Search from "../../components/Map/Search";
+import Locate from "../../components/Map/Locate";
+import Box from '@material-ui/core/Box';
+import LocalHospitalIcon from '@material-ui/icons/LocalHospital'
+import HealingIcon from '@material-ui/icons/Healing';
 
-import styles from "./Map.css";
 
 
-const reduceSize = trials => {
-    let visited = [];
-    for (let trial of trials) {
-        // console.log(trial)
-        if (trial.locations && trial.locations[0]) {
-            if (visited.length === 0) {
-                if (trial.locations[0].country) {
-                    visited.push(trial);
-                }
-            } else {
-                if (trial.locations[0].country) {
-                    let flag = false;
-                    for (let visit of visited) {
-                        if (
-                            visit.locations[0].country ===
-                            trial.locations[0].country
-                        ) {
-                            flag = true;
-                            break;
-                        }
-                    }
-                    if (flag === false) {
-                        visited.push(trial);
-                    }
-                }
-            }
-        }
-    }
-    if (visited.length === 1 && trials.length > 1) {
-        let mid = Math.floor(trials.length / 2);
-        if (mid > 0 && mid < trials.length) {
-            visited.push(trials[mid]);
-        }
+console.log(Data)
 
-        let random = Math.floor(Math.random() * mid);
-
-        if (random > 0 && random < mid) {
-            visited.push(trials[random]);
-        }
-
-        random = Math.floor(
-            Math.random() * (trials.length - 1 - (mid + 1) + (mid + 1))
-        );
-
-        if (random > 0 && random < trials.length) {
-            visited.push(trials[random]);
-        }
-        visited.push(trials[trials.length - 1]);
-    }
-    return visited;
+//avoid re-renders
+const libraries = ["places", "geometry"]
+// make the map cover the page
+const mapContainerStyle = {
+    width: "100vw",
+    height: "100vh",
 };
+const center = {
+    lat: 45.815010,
+    lng: 15.981919,
+};
+// snazzy maps ---- copy and paste into separate file map styles and export as default
+const options = {
+    styles: mapStyles,
+    // remove default items that come with map 
+    disableDefaultUI: true,
+    //add individual items that you want
+    zoomControl: true,
+    scrollwheel: false,
+    rotateControl: true
 
-function MapContainer(props) {
-    reduceSize(props.trials);
-    return (
-        <Map
-            key={props.trials && props.trials.length}
-            google={props.google}
-            center={{
-                lat:
-                    props.trials && props.trials.length > 0
-                        ? Number(
-                              props.trials[0].locations.length !== 0 &&
-                                  props.trials[0].locations[
-                                      props.selectedLocation
-                                          ? props.selectedLocation
-                                          : 0
-                                  ].lat
-                          )
-                        : 39.2904,
-                lng:
-                    props.trials && props.trials.length > 0
-                        ? Number(
-                              props.trials[0].locations.length !== 0 &&
-                                  props.trials[0].locations[
-                                      props.selectedLocation
-                                          ? props.selectedLocation
-                                          : 0
-                                  ].lng
-                          )
-                        : -76.6122
-            }}
-            style={styles}
-            onReady={(_, map) => {
-                if (props.trials && props.trials.length >= 1) {
-                    const bounds = new window.google.maps.LatLngBounds();
-                    reduceSize(props.trials).forEach(trial => {
-                        if (trial.locations[0]) {
-                            bounds.extend(
-                                new window.google.maps.LatLng(
-                                    trial.locations[0].lat,
-                                    trial.locations[0].lng
-                                )
-                            );
-                        }
-                    });
-                    map.fitBounds(bounds);
-                    if (props.trialDetails) {
-                        map.setZoom(13);
-                    }
-                }
-            }}
-            onCenterChanged={(_, map) => {
-                if (props.trialDetails) map.setZoom(13);
-            }}
-            onRecenter={(_, map) => {
-                if (props.trialDetails) map.setZoom(13);
-            }}
-        >
-            {props.otherLocations
-                ? props.trials[0].locations.map((location, index) => {
-                      return (
-                          <Marker
-                              key={index}
-                              title={
-                                  props.trials[0].locations[
-                                      props.selectedLocation
-                                          ? props.selectedLocation
-                                          : 0
-                                  ].facility_name +
-                                  " - " +
-                                  location.city
-                              }
-                              name={
-                                  props.trials[0].locations[
-                                      props.selectedLocation
-                                          ? props.selectedLocation
-                                          : 0
-                                  ].facility_name +
-                                  " - " +
-                                  location.city
-                              }
-                              position={{
-                                  lat: location.lat,
-                                  lng: location.lng
-                              }}
-                              icon={{
-                                  url: "marker.png"
-                              }}
-                          >
-                          </Marker>
-                      );
-                  })
-                : props.trials.map((trial, index) => {
-                      if (
-                          trial.locations[
-                              props.selectedLocation
-                                  ? props.selectedLocation
-                                  : 0
-                          ]
-                      ) {
-                          return (
-                              <Marker
-                                  key={index}
-                                  title={
-                                      trial.locations[
-                                          props.selectedLocation
-                                              ? props.selectedLocation
-                                              : 0
-                                      ].facility_name
-                                  }
-                                  name={
-                                      trial.locations[
-                                          props.selectedLocation
-                                              ? props.selectedLocation
-                                              : 0
-                                      ].facility_name
-                                  }
-                                  position={{
-                                      lat:
-                                          trial.locations[
-                                              props.selectedLocation
-                                                  ? props.selectedLocation
-                                                  : 0
-                                          ].lat,
-                                      lng:
-                                          trial.locations[
-                                              props.selectedLocation
-                                                  ? props.selectedLocation
-                                                  : 0
-                                          ].lng
-                                  }}
-                                  icon={{
-                                      url: "marker.png"
-                                  }}
-                              >
-                              </Marker>
-                          );
-                      } else {
-                          return null;
-                      }
-                  })}
-        </Map>
-    );
+
 }
 
-// you need to create new API from google console 
-// https://developers.google.com/maps/gmp-get-started#enable-api-sdk
 
-export default GoogleApiWrapper({
-    apiKey: (YOUR_GOOGLE_API_KEY_GOES_HERE)
-  })(MapContainer)
+
+
+// load map
+export default function App() {
+    const { isLoaded, loadError } = useLoadScript({
+        googleMapsApiKey: process.env.REACT_APP_GOOGLE_KEY,
+        libraries,
+
+    });
+
+
+
+
+    const [selected, setSelected] = useState(null);
+
+    const mapRef = React.useRef();
+    const onMapLoad = React.useCallback((map) => {
+        mapRef.current = map;
+    }, [])
+
+    // this function zoom in when a search is entered
+    const panTo = React.useCallback(({ lat, lng }) => {
+        mapRef.current.panTo({ lat, lng });
+        mapRef.current.setZoom(13)
+    }, [])
+
+
+
+
+
+    // this loads page
+    if (loadError) return "Error loading maps";
+    if (!isLoaded) return "Loading Map"
+
+
+    return (
+        // Add Ancora label at top  --- h1 on map --- h2 above map
+        <div>
+
+
+            <Search panTo={panTo} />
+            <Locate panTo={panTo} />
+            <GoogleMap
+                // how zoomed in when map starts
+                mapContainerStyle={mapContainerStyle}
+                zoom={6} center={center}
+                options={options}
+                onLoad={onMapLoad}
+
+            >
+
+                {Data.map((trial, index) => (
+                    <Marker
+                        key={index}
+
+                        //this is the marker title information
+
+                        title={trial.locations[0].facility_name}
+
+                        // this is setting the markers on the map
+                        position={{
+                            lat: Number(trial.locations[0].lat),
+                            lng: Number(trial.locations[0].lng)
+
+                        }}
+
+                        //change the icon
+                        icon={{
+                            url: "marker.png",
+                            /* ADD THIS TO CHANGE SIZE OF CUSTOM MARKER */
+                            // scaledSize: new window.google.maps.Size(30, 30)
+                        }}
+                        // this adds click to marker
+                        onClick={() => {
+                            setSelected(trial);
+                        }}
+                    />
+
+                ))}
+
+                {selected && (
+                    <InfoWindow className="infoDiv"
+                        position={{
+                            lat: Number(selected.locations[0].lat),
+                            lng: Number(selected.locations[0].lng)
+                        }}
+                        onCloseClick={() => {
+                            setSelected(null);
+                        }}
+
+
+                    >
+                        <Box component="span" color="text.primary" m={1} className="infoBox">
+                           
+                            <div className="infoBox" >
+                                <div className="topBanner"><p>ID:{selected.trial_id}</p></div>
+                                <h2>Trial Name</h2>
+                                <p>{selected.trial_name}</p>
+                                <h3>Trial Description</h3>
+                                <p>{selected.trial_description
+                                ?   selected.trial_description
+                                :   "No Description For This Trial"
+                                    }</p>
+                                <h4>Trial Summary</h4>
+                                <p>{selected.trial_summary}</p>
+                                <LocalHospitalIcon />
+                                <a href={`http://www.google.com/search?q=${selected.trial_name}`} >Learn More</a>
+                                <HealingIcon />
+                              
+                             
+                                
+                            </div>
+                                    
+                        </Box>
+                    </InfoWindow>)}
+
+            </GoogleMap>
+        </div>
+    )
+};
+
+
